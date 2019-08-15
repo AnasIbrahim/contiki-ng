@@ -109,7 +109,6 @@ typedef void (* rtimer_callback_t)(struct rtimer *t, void *ptr);
  *             support module for the real-time module.
  */
 struct rtimer {
-  rtimer_clock_t time;
   rtimer_callback_t func;
   void *ptr;
 };
@@ -135,7 +134,7 @@ enum {
  *             time in the future.
  *
  */
-int rtimer_set(struct rtimer *task, rtimer_clock_t time,
+int rtimer_set(struct rtimer *task,
 	       rtimer_clock_t duration, rtimer_callback_t func, void *ptr);
 
 /**
@@ -174,6 +173,7 @@ void rtimer_run_next(void);
 
 void rtimer_arch_init(void);
 void rtimer_arch_schedule(rtimer_clock_t t);
+void rtimer_arch_schedule_continuous();
 /*rtimer_clock_t rtimer_arch_now(void);*/
 
 #define RTIMER_SECOND RTIMER_ARCH_SECOND

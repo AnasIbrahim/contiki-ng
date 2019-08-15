@@ -64,7 +64,7 @@ rtimer_init(void)
 }
 /*---------------------------------------------------------------------------*/
 int
-rtimer_set(struct rtimer *rtimer, rtimer_clock_t time,
+rtimer_set(struct rtimer *rtimer,
 	   rtimer_clock_t duration,
 	   rtimer_callback_t func, void *ptr)
 {
@@ -79,11 +79,10 @@ rtimer_set(struct rtimer *rtimer, rtimer_clock_t time,
   rtimer->func = func;
   rtimer->ptr = ptr;
 
-  rtimer->time = time;
   next_rtimer = rtimer;
 
   if(first == 1) {
-    rtimer_arch_schedule(time);
+    rtimer_arch_schedule_continuous();
   }
   return RTIMER_OK;
 }
@@ -99,7 +98,7 @@ rtimer_run_next(void)
   next_rtimer = NULL;
   t->func(t, t->ptr);
   if(next_rtimer != NULL) {
-    rtimer_arch_schedule(next_rtimer->time);
+    rtimer_arch_schedule_continuous();
   }
   return;
 }

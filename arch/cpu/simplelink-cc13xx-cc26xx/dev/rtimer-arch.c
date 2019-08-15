@@ -51,7 +51,7 @@
 #include <stdint.h>
 /*---------------------------------------------------------------------------*/
 #define HWIP_RTC_CH     AON_RTC_CH0
-#define RTIMER_RTC_CH   AON_RTC_CH1
+#define RTIMER_RTC_CH   AON_RTC_CH2
 /*---------------------------------------------------------------------------*/
 typedef void (*isr_fxn_t)(void);
 typedef void (*hwi_dispatch_fxn_t)(void);
@@ -83,6 +83,7 @@ rtimer_isr_hook(void)
 
     rtimer_run_next();
   }
+
   /*
    * HWI Dispatch clears the interrupt. If HWI wasn't triggered, clear
    * the interrupt manually.
@@ -149,29 +150,27 @@ rtimer_arch_init(void)
    */
   IntRegister(INT_AON_RTC_COMB, rtimer_isr_hook);
 
-  AONEventMcuWakeUpSet(AON_EVENT_MCU_WU1, AON_EVENT_RTC_CH1);
+  //TODO CH1 or CH2 - why not related to channel definition
+  AONEventMcuWakeUpSet(AON_EVENT_MCU_WU2, AON_EVENT_RTC_CH2); 
   AONRTCCombinedEventConfig(HWIP_RTC_CH | RTIMER_RTC_CH);
 
   HwiP_restore(key);
 }
 /*---------------------------------------------------------------------------*/
 /**
- * \brief    Schedules an rtimer task to be triggered at time \p t.
- * \param t  The time when the task will need executed.
- *
- *           \p t is an absolute time, in other words the task will be
- *           executed AT time \p t, not IN \p t rtimer ticks.
- *
- *           This function schedules a one-shot event with the AON RTC.
- *
- *           This functions converts \p t to a value suitable for the AON RTC.
+ * \brief    Schedules a continuous rtimer after few RTC cycles
+ *           (TODO: how many cycles exactly) and calls the ISR with each cycle
  */
+
 void
-rtimer_arch_schedule(rtimer_clock_t t)
+rtimer_arch_schedule_continuous()
 {
   /* Convert the rtimer tick value to a value suitable for the AON RTC */
-  AONRTCCompareValueSet(RTIMER_RTC_CH, (uint32_t)t);
+  AONRTCModeCh2Set(AON_RTC_MODE_CH2_CONTINUOUS); //TODO maybe move it to init
+  AONRTCIncValueCh2Set(10); // schedule with every cycle
+  AONRTCCompareValueSet(RTIMER_RTC_CH, (uint32_t)rtimer_arch_now()+10 );
   AONRTCChannelEnable(RTIMER_RTC_CH);
+  //TODO should delay config be disabled
 }
 /*---------------------------------------------------------------------------*/
 /**
