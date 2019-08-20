@@ -79,7 +79,7 @@ rtimer_isr_hook(void)
 {
   if(AONRTCEventGet(RTIMER_RTC_CH)) {
     AONRTCEventClear(RTIMER_RTC_CH);
-    AONRTCChannelDisable(RTIMER_RTC_CH);
+    //AONRTCChannelDisable(RTIMER_RTC_CH);
 
     rtimer_run_next();
   }
@@ -93,6 +93,7 @@ rtimer_isr_hook(void)
   } else {
     IntPendClear(INT_AON_RTC_COMB);
   }
+
 }
 /*---------------------------------------------------------------------------*/
 /**
@@ -159,7 +160,7 @@ rtimer_arch_init(void)
 /*---------------------------------------------------------------------------*/
 /**
  * \brief    Schedules a continuous rtimer after few RTC cycles
- *           (TODO: how many cycles exactly) and calls the ISR with each cycle
+ *           (TODO: how many cycles exactly? 4) and calls the ISR with each cycle
  */
 
 void
